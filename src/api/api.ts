@@ -2,9 +2,9 @@ import type { AxiosInstance } from 'axios';
 import axios from 'axios';
 
 const token = localStorage.getItem('token');
-console.log(token);
+const baseUrl = `${import.meta.env.VITE_API_URL}/api`;
 const api: AxiosInstance = axios.create({
-  baseURL: process.env.API_URL || 'http://localhost:8000/api',
+  baseURL: baseUrl || 'http://localhost:8000/api',
   headers: {
     Authorization: `Bearer ${token}`,
   },
