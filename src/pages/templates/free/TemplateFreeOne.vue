@@ -3,7 +3,7 @@
     <div class="row items-center justify-between q-mb-xl">
       <div class="row items-center q-gutter-sm">
         <h6 class="text-2xl font-bold text-center text-primary">
-          Paleta<span class="text-accent">.io</span>
+          Portfol<span class="text-accent">.io</span>
         </h6>
       </div>
 
