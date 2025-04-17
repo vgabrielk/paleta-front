@@ -36,6 +36,11 @@ const routes: RouteRecordRaw[] = [
     },
   },
   {
+    path: '/:portfolioUrl',
+    name: 'portfolio-published',
+    component: () => import('pages/templates/TemplatePreviewPage.vue'),
+  },
+  {
     path: '/',
     component: () => import('layouts/MainLayout.vue'),
     meta: { requiresAuth: true },
@@ -73,20 +78,20 @@ const routes: RouteRecordRaw[] = [
         component: () => import('src/pages/portfolio/PortfolioForm.vue'),
       },
       {
+        path: '/show/test',
+        name: 'teste',
+        component: () => import('src/pages/TestPage.vue'),
+      },
+      {
         path: '/templates',
         children: [
-          // {
-          //   path: '/:id',
-          //   name: 'template-view',
-          //   component: () => import('src/pages/templates/TemplateViewPage.vue'),
-          // },
           {
             path: '',
             name: 'templates',
             component: () => import('src/pages/templates/TemplateListPage.vue'),
           },
           {
-            path: 'preview/:id/:portfolioId?',
+            path: 'preview/:id/:portfolioUrl?',
             name: 'template-preview',
             component: () => import('pages/templates/TemplatePreviewPage.vue'),
           },
@@ -99,23 +104,6 @@ const routes: RouteRecordRaw[] = [
     path: '/:catchAll(.*)*',
     component: () => import('pages/ErrorNotFound.vue'),
   },
-  // {
-  //   path: '/logout',
-  //   name: 'logout',
-  //   component: () => import('pages/auth/LoginPage.vue'),
-  //   beforeEnter: async (to, from, next) => {
-  //     try {
-  //       const response = await api.post('/logout');
-  //       if (response.status === 200) {
-  //         next();
-  //       } else {
-  //         next({ name: 'login' });
-  //       }
-  //     } catch {
-  //       next({ name: 'login' });
-  //     }
-  //   },
-  // },
 ];
 
 const router = createRouter({

@@ -1,7 +1,6 @@
 import { defineStore } from 'pinia';
 import { useQuasar } from 'quasar';
 import api from 'src/api/api';
-
 export const useUserStore = defineStore('user', {
   state: () => ({
     isAuthenticated: false,

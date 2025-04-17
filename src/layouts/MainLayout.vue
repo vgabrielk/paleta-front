@@ -49,11 +49,6 @@ const linksList: EssentialLinkProps[] = [
     icon: 'person',
     path: '/portfolio',
   },
-  {
-    title: 'Sair',
-    icon: 'logout',
-    path: '/logout',
-  },
 ];
 
 const leftDrawerOpen = ref(false);

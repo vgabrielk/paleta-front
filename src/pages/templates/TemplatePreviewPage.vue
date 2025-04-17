@@ -1,16 +1,16 @@
 <template>
-  <q-page class="bg-grey-2 q-pa-md">
+  <page-component class="bg-grey-2 q-pa-md">
     <q-card flat bordered class="q-pa-md" v-if="templateData && !loading">
       <component v-if="selectedTemplate" :is="selectedTemplate.component" :data="templateData" />
     </q-card>
     <q-btn
-      disabled
+      v-if="templateData ? !templateData?.site_url : true"
       label="Usar este template"
       color="primary"
       class="q-mt-lg"
       @click="useTemplate"
     />
-  </q-page>
+  </page-component>
 </template>
 
 <script setup lang="ts">
@@ -18,6 +18,8 @@ import { onMounted, ref, computed } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import { templates } from '.';
 import api from '../../api/api';
+import PageComponent from 'src/components/page/page-component.vue';
+import { useQuasar } from 'quasar';
 
 interface Experience {
   role: string;
@@ -42,11 +44,13 @@ interface PortfolioData {
   experiences?: Experience[];
   educations?: Education[];
   template_id?: number;
+  site_url?: string;
 }
 
 const route = useRoute();
 const router = useRouter();
 const loading = ref(true);
+const $q = useQuasar();
 
 const placeholderData = {
   name: 'Lucas Andrade',
@@ -107,13 +111,18 @@ const placeholderData = {
 const templateData = ref<PortfolioData | null>(null);
 
 const getPreviewData = async () => {
+  loading.value = true;
+  $q.loading.show({
+    spinnerColor: 'white',
+  });
   try {
-    const { data } = await api.get(`/portfolio/${route.params.portfolioId as string}`);
+    const { data } = await api.get(`/portfolio/url/${route.params.portfolioUrl as string}`);
     templateData.value = data.data;
   } catch (error) {
     templateData.value = placeholderData;
     console.error('Erro ao buscar os dados do portfólio:', error);
   } finally {
+    $q.loading.hide();
     loading.value = false;
   }
 };

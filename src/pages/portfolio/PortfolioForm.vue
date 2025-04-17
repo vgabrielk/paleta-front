@@ -231,17 +231,6 @@
       <q-separator class="q-my-md" />
 
       <q-card-actions align="right">
-        <q-btn
-          label="Demonstração"
-          color="primary"
-          @click="
-            () =>
-              router.push({
-                name: 'template-preview',
-                params: { id: 'template-free-1', portfolioId: route.params.id },
-              })
-          "
-        />
         <q-btn label="Salvar" color="primary" @click="handleSubmit" />
       </q-card-actions>
     </q-card>
@@ -252,7 +241,7 @@
 import { onMounted, reactive, ref } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import api from 'src/api/api';
-import { Notify } from 'quasar';
+import { Notify, useQuasar } from 'quasar';
 import PageComponent from 'src/components/page/page-component.vue';
 import type { AxiosError } from 'axios';
 
@@ -260,6 +249,7 @@ const route = useRoute();
 const router = useRouter();
 const activeTab = ref('main');
 const portfolioId = route.params.id as string | undefined;
+const $q = useQuasar();
 
 const form = reactive({
   id: 0,
@@ -307,10 +297,15 @@ const loadPortfolio = async () => {
 
 onMounted(async () => {
   if (portfolioId) {
+    $q.loading.show({
+      spinnerColor: 'white',
+    });
     try {
       await loadPortfolio();
     } catch (error) {
       console.error('Erro ao carregar portfólio:', error);
+    } finally {
+      $q.loading.hide();
     }
   }
 });
@@ -333,7 +328,11 @@ const handleSubmit = async () => {
         },
       };
       await api.put(`/portfolio/${form.id}`, payload);
-      Notify.create({ message: 'Portfólio atualizado com sucesso!', color: 'positive' });
+      Notify.create({
+        message: 'Portfólio atualizado com sucesso!',
+        color: 'positive',
+        icon: 'check_circle',
+      });
     } else {
       const payload = {
         id: form.id,

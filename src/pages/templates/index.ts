@@ -1,4 +1,5 @@
 import TemplateFreeOne from './free/TemplateFreeOne.vue';
+import TemplatePremiumOne from './premium/TemplatePremiumOne.vue';
 
 export const templates = [
   {
@@ -6,11 +7,13 @@ export const templates = [
     name: 'Template Livre',
     type: 'free',
     component: TemplateFreeOne,
+    disabled: false,
   },
-  // {
-  //   id: '2',
-  //   name: 'Template Premium',
-  //   type: 'premium', // <- ou "paid", como preferir
-  //   component: TemplatePremiumOne,
-  // },
+  {
+    id: '2',
+    name: 'Template Premium',
+    type: 'premium',
+    component: TemplatePremiumOne,
+    disabled: true,
+  },
 ];

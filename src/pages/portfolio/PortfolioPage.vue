@@ -25,14 +25,23 @@
               class="text-white bg-primary"
               @click.stop="
                 () =>
-                  Notify.create({
-                    message: 'Feature de publicação em desenvolvimento!',
-                    color: 'negative',
-                    icon: 'error',
-                  })
+                  portfolio?.data?.site_status != 'published'
+                    ? showDialog(portfolio)
+                    : router.push({
+                        name: 'portfolio-published',
+                        params: { portfolioUrl: portfolio?.data?.site_url },
+                      })
               "
-              >Publicar</q-btn
             >
+              <div v-if="portfolio?.data?.site_status === 'published'">
+                <q-icon name="check_circle" size="sm" class="q-mr-xs" />
+                Visualizar site
+              </div>
+              <div v-else>
+                <q-icon name="send" size="sm" class="q-mr-xs" />
+                Publicar
+              </div>
+            </q-btn>
           </q-item-section>
         </q-item>
       </q-list>
@@ -48,21 +57,85 @@
 import { ref, onMounted } from 'vue';
 import api from 'src/api/api';
 import { useRouter } from 'vue-router';
-import { Notify } from 'quasar';
+import { Notify, useQuasar } from 'quasar';
 import PageComponent from 'src/components/page/page-component.vue';
+import type { AxiosError } from 'axios';
 
 interface Portfolio {
   id: number;
   data: {
     name: string;
     title: string;
+    site_url: string;
+    site_status?: string;
   };
 }
 
 const portfolios = ref<Portfolio[]>([]);
 const router = useRouter();
+const loading = ref(false);
+const $q = useQuasar();
+const portfolioUrl = ref('');
+
+const showDialog = (portfolio: Portfolio) => {
+  $q.dialog({
+    title: 'Publicar Portfólio',
+    message: 'Digite a URL do site, ex: meu-portfolio',
+    prompt: {
+      model: '',
+      type: 'text',
+      isValid: (val) => val.length > 0,
+    },
+    cancel: true,
+    persistent: true,
+  }).onOk((url) => {
+    portfolioUrl.value = url;
+    void handlePublish(portfolio);
+  });
+};
+
+const handlePublish = async (portfolio: Portfolio) => {
+  try {
+    loading.value = true;
+    $q.loading.show({ message: 'Publicando...', spinnerColor: 'white' });
+
+    portfolio.data.site_url = portfolioUrl.value;
+    const response = await api.post(`/portfolio/${portfolio.id}/publish`, {
+      data: portfolio.data,
+    });
+
+    Notify.create({
+      message: 'Portfólio publicado com sucesso!',
+      color: 'positive',
+      icon: 'check_circle',
+    });
+    await fetchPortfolios();
+
+    console.log('Portfólio publicado:', response.data);
+  } catch (error) {
+    const err = error as AxiosError<Record<string, string[]>>;
+    if (err.response?.data?.errors) {
+      Object.values(err.response.data.errors).forEach((messages: string) => {
+        if (Array.isArray(messages)) {
+          messages.forEach((msg: string) => {
+            $q.notify({
+              message: msg,
+              color: 'negative',
+              icon: 'error',
+            });
+          });
+        }
+      });
+    }
+  } finally {
+    $q.loading.hide();
+  }
+};
 
 const fetchPortfolios = async () => {
+  $q.loading.show({
+    spinnerColor: 'white',
+  });
   try {
     const response = await api.get(`/portfolio`);
     portfolios.value = response.data;
@@ -73,6 +146,8 @@ const fetchPortfolios = async () => {
       color: 'negative',
       icon: 'error',
     });
+  } finally {
+    $q.loading.hide();
   }
 };
 
@@ -90,7 +165,7 @@ const editPortfolio = (id: number) => {
 };
 
 // const deletePortfolio = async (id: number, index: number) => {
-//   Dialog.create({
+//   $q.dialog({
 //     title: 'Confirmação',
 //     message: 'Deseja realmente excluir este portfólio?',
 //     cancel: true,
